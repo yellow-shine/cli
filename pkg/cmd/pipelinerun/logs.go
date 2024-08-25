@@ -18,6 +18,7 @@ import (
 	"fmt"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/spf13/cobra"
 	"github.com/tektoncd/cli/pkg/cli"
@@ -31,7 +32,8 @@ import (
 )
 
 const (
-	defaultLimit = 5
+	defaultLimit   = 5
+	defaultTimeout = 10 * time.Minute
 )
 
 func logCommand(p cli.Params) *cobra.Command {
@@ -87,6 +89,7 @@ Show the logs of PipelineRun named 'microservice-1' for all Tasks and steps (inc
 	c.Flags().BoolVarP(&opts.ExitWithPrError, "exit-with-pipelinerun-error", "E", false, "exit with pipelinerun to the unix shell, 0 if success, 1 if error, 2 on unknown status")
 	c.Flags().StringSliceVarP(&opts.Tasks, "task", "t", []string{}, "show logs for mentioned Tasks only")
 	c.Flags().IntVarP(&opts.Limit, "limit", "", defaultLimit, "lists number of PipelineRuns")
+	c.Flags().DurationVarP(&opts.Timeout, "timeout", "", defaultTimeout, "timeout of streaming a log if no more comming data")
 	return c
 }
 
@@ -110,7 +113,7 @@ func Run(opts *options.LogOptions) error {
 		return err
 	}
 
-	log.NewWriter(log.LogTypePipeline, opts.Prefixing).Write(opts.Stream, logC, errC)
+	log.NewWriter(log.LogTypePipeline, opts.Prefixing, opts.Timeout).Write(opts.Stream, logC, errC)
 
 	// get pipelinerun status
 	if opts.ExitWithPrError {

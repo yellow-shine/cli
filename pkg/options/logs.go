@@ -52,6 +52,7 @@ type LogOptions struct {
 	Timestamps      bool
 	Prefixing       bool
 	ExitWithPrError bool
+	Timeout         time.Duration
 	// ActivityTimeout is the amount of time to wait for some activity
 	// (e.g. Pod ready) before giving up.
 	ActivityTimeout time.Duration

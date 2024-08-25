@@ -112,7 +112,7 @@ func Run(opts *options.LogOptions) error {
 		return err
 	}
 
-	log.NewWriter(log.LogTypeTask, opts.Prefixing).Write(opts.Stream, logC, errC)
+	log.NewWriter(log.LogTypeTask, opts.Prefixing, opts.Timeout).Write(opts.Stream, logC, errC)
 	return nil
 }
 

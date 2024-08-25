@@ -16,6 +16,7 @@ package log
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/tektoncd/cli/pkg/cli"
 	"github.com/tektoncd/cli/pkg/formatted"
@@ -23,17 +24,19 @@ import (
 
 // Writer helps logging pod"s log
 type Writer struct {
-	fmt       *formatted.Color
-	logType   string
-	prefixing bool
+	fmt             *formatted.Color
+	logType         string
+	prefixing       bool
+	timeout time.Duration
 }
 
 // NewWriter returns the new instance of LogWriter
-func NewWriter(logType string, prefixing bool) *Writer {
+func NewWriter(logType string, prefixing bool, timeout time.Duration) *Writer {
 	return &Writer{
-		fmt:       formatted.NewColor(),
-		logType:   logType,
-		prefixing: prefixing,
+		fmt:             formatted.NewColor(),
+		logType:         logType,
+		prefixing:       prefixing,
+		timeout: timeout,
 	}
 }
 
@@ -68,6 +71,10 @@ func (lw *Writer) Write(s *cli.Stream, logC <-chan Log, errC <-chan error) {
 				continue
 			}
 			lw.fmt.Error(s.Err, "%s\n", e)
+		case <-time.After(lw.timeout):
+			fmt.Fprintf(s.Out, "Timeout...")
+			return
 		}
+
 	}
 }
